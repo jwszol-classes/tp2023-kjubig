@@ -22,15 +22,35 @@ class ButtonGroup
 {
 public:
     vector<sf::RectangleShape> buttons; //ustaw jeszcze prawidlowe rozmiary i pozycje zeby pasowaly do pietra
-
+    vector<sf::Text*> text;
+    sf::Font font;
     ButtonGroup()
     {
+        font.loadFromFile("Oswald.ttf");
         for(int i=0; i<5;i++)
         {
             sf::RectangleShape tmp;
+
             tmp.setSize({25,25});
             tmp.setFillColor(sf::Color::Yellow);
+            tmp.setOutlineColor(sf::Color::Black);
+            tmp.setOutlineThickness(2);
             buttons.emplace_back(tmp);
+
+            sf::Text *tmpText = new sf::Text;
+            tmpText->setFont(font);
+            tmpText->setCharacterSize(15);
+            tmpText->setFillColor(sf::Color::Black);
+            tmpText->setString(to_string(i));
+            text.emplace_back(tmpText);
+        }
+    }
+
+    ~ButtonGroup()
+    {
+        for(int i=0; i<5;i++)
+        {
+            delete text[i];
         }
     }
 
@@ -50,6 +70,7 @@ public:
         for(int i=4; i>=0;i--)
         {
             buttons[i].setPosition(x,y+ (4-i)*30);
+            text[i]->setPosition(x,y+ (4-i)*30);
         }
     }
 
@@ -58,6 +79,7 @@ public:
         for(int i=0; i<5;i++)
         {
             window.draw(buttons[i]);
+            window.draw(*text[i]);
         }
     }
 };
@@ -125,6 +147,7 @@ public:
     sf::Texture texture;
     sf::Sprite body;
     vector<Osoba*> kolejka;
+    vector<Osoba*> wychodzacy;
     ButtonGroup buttons;
 
 
@@ -133,8 +156,6 @@ public:
         texture.loadFromFile("./pietro.jpg");
         body.setTexture(texture);
         body.setScale(0.29f, 0.25f);
-
-
     }
 
     ~Pietro()
@@ -164,6 +185,11 @@ public:
     {
         window.draw(body);
         buttons.draw(window);
+        for(int i = 0; i < (int)wychodzacy.size(); i++)
+        {
+            wychodzacy[i]->draw(window);
+        }
+
         for(int i = 0; i < (int)kolejka.size(); i++)
         {
             kolejka[i]->draw(window);
@@ -267,6 +293,9 @@ public:
     sf::Sprite floorbackgroundSprite;
     vector<int> kolejkaPieter;
     sf::Vector2f maxMinPietro = {0,4};
+    bool stop = false;
+    sf::Clock stopTimer;
+    sf::Clock endClock;
 
     SystemWindy(int iloscPieter, sf::RenderWindow &window)
     {
@@ -288,12 +317,19 @@ public:
         floorbackgroundSprite.setScale(0.675f, 1.5f);
         floorbackgroundSprite.setPosition(187, 0);
 
+
+
         for (int i = 725; i >= 0; i -= 175)
         {
             Pietro *tmp = new Pietro;
             tmp->body.setPosition(187, i);
             tmp->buttons.setPosition(670, i);
             pietra.emplace_back(tmp);
+        }
+
+        for(int i = 0; i < pietra.size(); i++)
+        {
+            pietra[i]->buttons.buttons[i].setFillColor(sf::Color::Black);
         }
     }
 
@@ -344,6 +380,11 @@ public:
 
     void events(sf::RenderWindow &window, sf::Event &event)
     {
+//        if (event.type == sf::Event::MouseButtonPressed)
+//        {
+//            pietra[0]->wychodzacy.emplace_back(new Osoba(4));
+//            pietra[0]->wychodzacy[pietra[0]->wychodzacy.size()-1]->setPosition(pietra[0]->body.getPosition().x, pietra[0]->body.getPosition().y+50);
+//        }
         //eventy do guzikow pieter:
         for(int i = 0; i < pietra.size(); i++)
         {
@@ -351,9 +392,12 @@ public:
             {
                 if (pietra[i]->buttons.buttons[j].getGlobalBounds().contains(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y) && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
                 {
-                    if (i != j) pietra[i]->add(j);
+                    if (i != j)
+                    {
+                        pietra[i]->add(j);
                     //moveWinda(j);
-                    dodajDoKolejkiPieter(i);
+                        dodajDoKolejkiPieter(i);
+                    }
                 }
             }
         }
@@ -421,7 +465,8 @@ public:
         //cout << winda.nrPietra << endl;
         if (winda.oczekujacy.size() == 0 && winda.drugorzedneOczekujace.size() == 0)
         {
-            winda.cel = 0;
+            if (endClock.getElapsedTime().asMilliseconds() > 5000)
+                winda.cel = 0;
             //cout << 1.1 << endl;
         }
         else if (winda.oczekujacy.size() == 0 && winda.drugorzedneOczekujace.size() != 0)
@@ -442,11 +487,27 @@ public:
         //moveWinda(false);
         if (winda.nrPietra != winda.cel)
         {
-            moveWinda(false);
+            if (stopTimer.getElapsedTime().asMilliseconds() > 1000)
+            {
+                stop = false;
+            }
+            moveWinda(false || stop);
         }
         else
         {
-            moveWinda(true);
+            if (!stop)
+            {
+                stopTimer.restart();
+            }
+
+            if (stopTimer.getElapsedTime().asMilliseconds() > 1000)
+            {
+                stop = false;
+            }
+            else
+                stop = true;
+
+            moveWinda(true || stop);
 //            //usuwa pietro z oczekujacych
 //            for(int i = 0; i < winda.pasazerowie.size(); i++)
 //            {
@@ -456,21 +517,40 @@ public:
 //                    winda.oczekujacy.erase(winda.oczekujacy.begin());
 //                }
 //            }
-            cout << 1 << endl;
+            //cout << 1 << endl;
             //sprawdzic czy ktos ma wyjsc
             //usunac osoby z windy
+
+
+
             for(int i = 0; i < winda.pasazerowie.size(); i++)
             {
                 if (winda.nrPietra == winda.pasazerowie[i]->pietroDo)
                 {
                     cout << "pasaz size" << winda.pasazerowie.size() << " oczekujacy size" << winda.oczekujacy.size() << endl;
                     winda.aktualnaWaga -= winda.pasazerowie[i]->waga;
+                    pietra[winda.nrPietra]->wychodzacy.emplace_back(winda.pasazerowie[i]);
+                    pietra[winda.nrPietra]->wychodzacy[pietra[winda.nrPietra]->wychodzacy.size()-1]->setPosition(pietra[winda.nrPietra]->body.getPosition().x + rand() % 50, pietra[winda.nrPietra]->body.getPosition().y+50);
                     winda.pasazerowie.erase(winda.pasazerowie.begin()+i);
                     winda.oczekujacy.erase(winda.oczekujacy.begin());
+                    if (winda.pasazerowie.size() == 0)
+                        endClock.restart();
                     i--;
                 }
             }
-cout << 2 << endl;
+
+            for(int i = 0; i < winda.oczekujacy.size(); i++)
+            {
+                cout << winda.oczekujacy[i] << " ";
+            }
+            cout << endl;
+            for(int i = 0; i < winda.drugorzedneOczekujace.size(); i++)
+            {
+                cout << winda.drugorzedneOczekujace[i] << " ";
+            }
+            cout << endl << "///" << endl;
+
+//cout << 2 << endl;
             //sprawdzic czy mozna wejsc
             //sprawdzic czy ktos chce wejsc
             //dodac te osoby do windy
@@ -478,6 +558,7 @@ cout << 2 << endl;
             {
                 if (winda.aktualnaWaga+pietra[winda.cel]->kolejka[i]->waga <= winda.maxWaga)
                 {
+                    winda.oczekujacy.erase(winda.oczekujacy.begin());
                     winda.oczekujacy.emplace_back(pietra[winda.cel]->kolejka[i]->pietroDo);
                     winda.pasazerowie.emplace_back(new Osoba(pietra[winda.cel]->kolejka[i]->pietroDo));
                     winda.aktualnaWaga += pietra[winda.cel]->kolejka[i]->waga;
@@ -489,7 +570,7 @@ cout << 2 << endl;
                     winda.drugorzedneOczekujace.emplace_back(pietra[winda.cel]->kolejka[i]->pietroDo);
                 }
             }
-            cout << 3 << endl;
+            //cout << 3 << endl;
             //cout << winda.pasazerowie.size() << endl;
             winda.ustawieniaPasazerow();
 
@@ -497,7 +578,7 @@ cout << 2 << endl;
             else if (winda.kierunek == Down) sort(winda.oczekujacy.begin(), winda.oczekujacy.end(), sortShrinking);
             if (winda.kierunek == Up || winda.kierunek == Idle) sort(winda.drugorzedneOczekujace.begin(), winda.drugorzedneOczekujace.end(), sortShrinking);
             else if (winda.kierunek == Down) sort(winda.drugorzedneOczekujace.begin(), winda.drugorzedneOczekujace.end(), sortGrowing);
-cout << 4 << endl;
+//cout << 4 << endl;
         }
         //cout << 3 << endl;
 
@@ -546,6 +627,22 @@ cout << 4 << endl;
             for(int i = 0; i < winda.pasazerowie.size(); i++)
             {
                 winda.pasazerowie[i]->move(0,winda.speed);
+            }
+
+            for(int i = 0; i < (int)pietra.size(); i++)
+            {
+                for(int j = 0; j < (int)pietra[i]->wychodzacy.size(); j++)
+                {
+                    if (pietra[i]->wychodzacy[j]->body.getPosition().x > 600)
+                    {
+                        delete pietra[i]->wychodzacy[i];
+                        pietra[i]->wychodzacy.erase(pietra[i]->wychodzacy.begin()+j);
+                    }
+                    else
+                    {
+                        pietra[i]->wychodzacy[j]->move(1,0);
+                    }
+                }
             }
             winda.timer.restart();
         }
