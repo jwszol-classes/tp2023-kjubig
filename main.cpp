@@ -37,12 +37,12 @@ public:
     Pietro()
     {
         texture.loadFromFile("./pietro.jpg");
+
         body.setTexture(texture);
         body.setScale(0.25f, 0.25f);
         body.setPosition(188, 100);
-//        body.setSize(sf::Vector2f(500, 8));
-//        body.setFillColor(sf::Color::Black);
-//        body.setPosition(725, 100);
+
+
     }
 
     ~Pietro()
@@ -101,20 +101,28 @@ public:
     sf::Sprite backgroundSprite;
     sf::Texture shaftTexture;
     sf::Sprite shaftSprite;
+    sf::Texture floorbackgroundTexture;
+    sf::Sprite floorbackgroundSprite;
 
     SystemWindy(int iloscPieter, sf::RenderWindow &window) : pietra(vector<Pietro>(iloscPieter))
     {
 
         backgroundTexture.loadFromFile("./background.png");
-
         backgroundSprite.setTexture(backgroundTexture);
-        backgroundSprite.setScale(window.getSize().x/backgroundSprite.getGlobalBounds().width, window.getSize().y/backgroundSprite.getGlobalBounds().height);
+        backgroundSprite.setScale(1.0f, 1.0f);
+        backgroundSprite.setPosition(638, 0);
 
-        shaftTexture.loadFromFile("./shaft2.png");
 
+        shaftTexture.loadFromFile("./shaft.png");
         shaftSprite.setTexture(shaftTexture);
-        shaftSprite.setScale(0.5f, 1.5f);
+        shaftSprite.setScale(0.5f, 1.55f);
         shaftSprite.setPosition(0, 0);
+
+
+        floorbackgroundTexture.loadFromFile("./floorbackground.jpg");
+        floorbackgroundSprite.setTexture(floorbackgroundTexture);
+        floorbackgroundSprite.setScale(1.0f, 1.0f);
+        floorbackgroundSprite.setPosition(187, 0);
     }
 
     void dodajOsobe(int pietro, Osoba os)
@@ -132,8 +140,10 @@ public:
     void drawScreen(sf::RenderWindow &window)
     {
         //rysujesz wszystko co ma byc na ekranie
-        window.draw(backgroundSprite);
+
         window.draw(shaftSprite);
+        window.draw(floorbackgroundSprite);
+        window.draw(backgroundSprite);
         window.draw(winda.body);
         for(int i = 0; i < pietra.size(); i++)
         {
@@ -143,71 +153,12 @@ public:
 
 };
 
-//class MainScreen
-//{
-//public:
-//    //wszystkie elementy / zmienne wazne do ekranu
-
-
-//    MainScreen(sf::RenderWindow &window)
-//    {
-//        //wartosci poczatkowe, ustawianie pozycji itp itd
-
-//    }
-
-
-//    void drawScreen(sf::RenderWindow &window)
-//    {
-//        //rysujesz wszystko co ma byc na ekranie
-
-//    }
-//};
-
-
 
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(1200, 900), "Elevator");
     Pietro pietro1;
     SystemWindy systemWindy(5,window);
-//    sf::Texture background;
-//    background.loadFromFile("./background.png");
-
-//    sf::Sprite backgroundSprite(background);
-//    backgroundSprite.setScale(window.getSize().x/backgroundSprite.getGlobalBounds().width, window.getSize().y/backgroundSprite.getGlobalBounds().height);
-
-//    sf::Texture shaft;
-//    shaft.loadFromFile("./shaft2.png");
-
-
-//    sf::Sprite shaftSprite(shaft);
-
-//    shaftSprite.setScale(0.5f, 1.5f);
-//    shaftSprite.setPosition(0, 0);
-
-//    sf::Texture elevator;
-//    elevator.loadFromFile("./el.png");
-
-//    sf::Sprite elevatorSprite(elevator);
-
-//    elevatorSprite.setScale(0.625f, 0.5f);
-//    elevatorSprite.setPosition(0, 0);
-
-//    sf::Texture pietro;
-//    pietro.loadFromFile("./pietro.jpg");
-
-//    sf::Sprite pietroSprite(pietro);
-
-//    pietroSprite.setScale(0.25f, 0.25f);
-//    pietroSprite.setPosition(188, 100);
-
-//    sf::Texture czlowiek;
-//    czlowiek.loadFromFile("./stick.png");
-
-//    sf::Sprite czlowiekSprite(czlowiek);
-
-//    czlowiekSprite.setScale(0.25f, 0.25f);
-//    czlowiekSprite.setPosition(575, 159);
 
     while (window.isOpen())
     {
@@ -225,12 +176,6 @@ int main()
         }
 
         window.clear();
-        //pietro1.draw(window);
-//window.draw(backgroundSprite);
-//        window.draw(shaftSprite);
-//       window.draw(elevatorSprite);
-//        window.draw(pietroSprite);
-//        window.draw(czlowiekSprite);
         systemWindy.drawScreen(window);
         window.display();
     }
