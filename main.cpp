@@ -396,6 +396,14 @@ public:
         {
             moveWinda(true);
             //robimy
+            for(int i = 0; i < pietra[winda.cel]->kolejka.size(); i++)
+            {
+                winda.oczekujacy.emplace_back(pietra[winda.cel]->kolejka[i]->pietroDo);
+                pietra[winda.cel]->kolejka.erase(pietra[winda.cel]->kolejka.begin()+i);
+                i--;
+            }
+            if (winda.kierunek == Up || winda.kierunek == Idle) sort(winda.oczekujacy.begin(), winda.oczekujacy.end(), sortGrowing);
+            else if (winda.kierunek == Down) sort(winda.oczekujacy.begin(), winda.oczekujacy.end(), sortShrinking);
             if (winda.oczekujacy.size() != 0 && winda.oczekujacy[0] == winda.cel)
             {
                 cout << "jestem na celu " << winda.cel << endl;
