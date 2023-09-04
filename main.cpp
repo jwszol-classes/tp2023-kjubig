@@ -16,28 +16,28 @@ public:
         for(int i=0; i<5;i++)
         {
             sf::RectangleShape tmp;
-            tmp.setSize({50,50});
-            //tmp.setPosition(500, i*100);
+            tmp.setSize({25,25});
+            tmp.setFillColor(sf::Color::Cyan);
             buttons.emplace_back(tmp);
         }
     }
 
-    void pressEvent(sf::RenderWindow &window, sf::Event &event)
-    {
-        for(int i=0; i<5;i++)
-        {
-            if (buttons[i].getGlobalBounds().contains(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y) && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
-            {
-                cout << "KLIK " << i << endl;
-            }
-        }
-    }
+    //    void pressEvent(sf::RenderWindow &window, sf::Event &event)
+    //    {
+    //        for(int i=0; i<5;i++)
+    //        {
+    //            if (buttons[i].getGlobalBounds().contains(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y) && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+    //            {
+    //                cout << "KLIK " << i << endl;
+    //            }
+    //        }
+    //    }
 
     void setPosition(int x, int y)
     {
         for(int i=4; i>=0;i--)
         {
-            buttons[i].setPosition(x,y+ (4-i)*100);
+            buttons[i].setPosition(x,y+ (4-i)*30);
         }
     }
 
@@ -63,14 +63,14 @@ public:
     {
         texture.loadFromFile("./stick.png");
         body.setTexture(texture);
-        body.setScale(0.1,0.1);
+        body.setScale(0.2,0.2);
     }
-//    Osoba(float doPietra, int wag) : pietroDo((int)doPietra), waga(wag)
-//    {
-//        texture.loadFromFile("./stick.png");
-//        body.setTexture(texture);
-//        body.setScale(0.1,0.1);
-//    }
+    //    Osoba(float doPietra, int wag) : pietroDo((int)doPietra), waga(wag)
+    //    {
+    //        texture.loadFromFile("./stick.png");
+    //        body.setTexture(texture);
+    //        body.setScale(0.1,0.1);
+    //    }
 };
 
 class Pietro
@@ -79,15 +79,15 @@ public:
     sf::Texture texture;
     sf::Sprite body;
     vector<Osoba*> kolejka;
-    sf::RectangleShape button; //dodajesz buttongroup
+    ButtonGroup buttons;
 
     Pietro()
     {
         texture.loadFromFile("./pietro.jpg");
         body.setTexture(texture);
         body.setScale(0.29f, 0.25f);
-        button.setSize({50,50});
-//        button.setFillColor(sf::Color::Green);
+
+        //        button.setFillColor(sf::Color::Green);
     }
 
     ~Pietro()
@@ -108,7 +108,7 @@ public:
         kolejka.emplace_back(new Osoba(nr));
         for(int i = 0; i < (int)kolejka.size(); i++)
         {
-            kolejka[i]->body.setPosition(i*200, 0);
+            kolejka[i]->body.setPosition(175 + i*200, 100);
         }
     }
 
@@ -116,12 +116,17 @@ public:
     void draw(sf::RenderWindow &window)
     {
         window.draw(body);
-        window.draw(button);
+        buttons.draw(window);
         for(int i = 0; i < (int)kolejka.size(); i++)
         {
             window.draw(kolejka[i]->body);
         }
     }
+};
+
+enum Kierunek
+{
+    Up, Down, Idle
 };
 
 class Winda
@@ -133,6 +138,10 @@ public:
     float nrPietra = 0;
     int maxWaga = 600;
     int aktualnaWaga = 0;
+    sf::Clock timer;
+    int speed = 0;
+    Kierunek kierunek = Idle;
+    int cel = 0;
 
     Winda(int maxWag) : maxWaga(maxWag) {}
     Winda()
@@ -144,6 +153,16 @@ public:
         //724 548 373 200 23
     }
 
+    void setKierunek(Kierunek kier)
+    {
+        kierunek = kier;
+        if (kierunek == Idle)
+            speed = 0;
+        else if (kierunek == Up)
+            speed = -1;
+        else
+            speed = 1;
+    }
     void setPosition(int yPos)
     {
         body.setPosition(body.getPosition().x, yPos);
@@ -187,9 +206,27 @@ public:
         {
             Pietro *tmp = new Pietro;
             tmp->body.setPosition(187, i);
-            tmp->button.setPosition(400, i+25); //button group setpos
+            tmp->buttons.setPosition(670, i);
             pietra.emplace_back(tmp);
         }
+    }
+
+    void events(sf::RenderWindow &window, sf::Event &event)
+    {
+        //eventy do guzikow pieter:
+        for(int i = 0; i < pietra.size(); i++)
+        {
+            for(int j = 0; j < 5; j++)
+            {
+                if (pietra[i]->buttons.buttons[j].getGlobalBounds().contains(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y) && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+                {
+                    if (i != j) pietra[i]->add(j);
+                    moveWinda(j);
+                }
+            }
+        }
+
+        //inne eventy
     }
 
     void dodajOsobe(int pietro, Osoba os)
@@ -204,33 +241,102 @@ public:
         }
     }
 
+//    void moveWinda(int pietro)
+//    {
+//        winda.setPosition(pietra[pietro]->getPosition().y);
+//        winda.nrPietra = pietro;
+//        cout << "winda ruszyla sie na pietro: " << pietro << endl;
+//    }
+
     void moveWinda(int pietro)
     {
-        winda.setPosition(pietra[pietro]->getPosition().y);
-        winda.nrPietra = pietro;
-        cout << "winda ruszyla sie na pietro: " << pietro << endl;
+
+        //winda.setPosition(pietra[pietro]->getPosition().y);
+        winda.cel = pietro;
+        if (winda.cel == winda.nrPietra)
+        {
+            winda.setKierunek(Kierunek::Idle);
+        }
+        else if (winda.cel < winda.nrPietra )
+        {
+            winda.setKierunek(Kierunek::Down);
+        }
+        else if (winda.cel > winda.nrPietra )
+        {
+            winda.setKierunek(Kierunek::Up);
+        }
+        cout << winda.cel << " " << winda.kierunek << endl;
+        //cout << "winda ruszyla sie na pietro: " << pietro << endl;
+        //if()
+    }
+
+    void test()
+    {
+        if (winda.nrPietra == winda.cel)
+        {
+            winda.setKierunek(Idle);
+        }
+        for(int i = 0; i < pietra.size(); i++)
+        {
+            if (winda.body.getPosition().y > pietra[pietra.size()-1-i]->body.getPosition().y - 5 && winda.body.getPosition().y < pietra[pietra.size()-1-i]->body.getPosition().y + 5)
+            {
+                //cout << "Winda jest na pietrze: " << pietra.size()-1-i << endl;
+                winda.nrPietra = pietra.size()-1-i;
+                break;
+            }
+            else if (winda.body.getPosition().y < pietra[pietra.size()-1-i]->body.getPosition().y + pietra[i]->body.getGlobalBounds().height)
+            {
+                //cout << "Winda jest na pol pietrze: " << pietra.size()-2-i + 0.5 << endl;
+                winda.nrPietra = pietra.size()-2-i + 0.5;
+                break;
+            }
+        }
     }
 
     void windaMovement()
     {
-        for(int i = 0; i < pietra.size(); i++)
+        if(winda.timer.getElapsedTime().asMilliseconds() >= 5)
         {
-            if (!pietra[i]->kolejka.empty())
-            {
-                if (winda.nrPietra != i) moveWinda(i);
-                while(!pietra[i]->kolejka.empty())
-                {
-                    winda.pasazerowie.emplace_back(pietra[i]->kolejka[0]);
-                    pietra[i]->kolejka.erase(pietra[i]->kolejka.begin());
-                }
-            }
+            winda.body.move(0,winda.speed);
+            winda.timer.restart();
         }
 
-        while(!winda.pasazerowie.empty())
-        {
-            if (winda.nrPietra != winda.pasazerowie[0]->pietroDo) moveWinda(winda.pasazerowie[0]->pietroDo);
-            winda.pasazerowie.erase(winda.pasazerowie.begin());
-        }
+        //                {
+//        for(int i = 0; i < pietra.size(); i++)
+//        {
+//            if (!pietra[i]->kolejka.empty())
+//            {
+//                if (winda.kierunek == Kierunek::Idle)
+//                {
+//                    int tmp = abs(winda.nrPietra - i);
+//                    if (tmp == 0)
+//                        winda.setKierunek(Kierunek::Idle);
+//                    else if (tmp > 0)
+//                        winda.setKierunek(Kierunek::Down);
+//                    else if (tmp < 0)
+//                        winda.setKierunek(Kierunek::Up);
+//                }
+//            }
+//        }
+
+//                for(int i = 0; i < pietra.size(); i++)
+//                {
+//                    if (!pietra[i]->kolejka.empty())
+//                    {
+//                        if (winda.nrPietra != i) moveWinda(i);
+//                        while(!pietra[i]->kolejka.empty())
+//                        {
+//                            winda.pasazerowie.emplace_back(pietra[i]->kolejka[0]);
+//                            pietra[i]->kolejka.erase(pietra[i]->kolejka.begin());
+//                        }
+//                    }
+//                }
+
+//                while(!winda.pasazerowie.empty())
+//                {
+//                    if (winda.nrPietra != winda.pasazerowie[0]->pietroDo) moveWinda(winda.pasazerowie[0]->pietroDo);
+//                    winda.pasazerowie.erase(winda.pasazerowie.begin());
+//                }
     }
 
     void drawScreen(sf::RenderWindow &window)
@@ -255,8 +361,6 @@ int main()
     sf::RenderWindow window(sf::VideoMode(1200, 900), "Elevator");
     Pietro pietro1;
     SystemWindy systemWindy(5,window);
-    ButtonGroup guziki;
-    guziki.setPosition(300, 200);
 
     srand(time(NULL));
     while (window.isOpen())
@@ -264,36 +368,74 @@ int main()
         sf::Event event;
         while (window.pollEvent(event))
         {
-//            if (event.type == sf::Event::MouseButtonPressed)
-//                std::cout << sf::Mouse::getPosition(window).x << " " << sf::Mouse::getPosition(window).y<<std::endl;
+            //            if (event.type == sf::Event::MouseButtonPressed)
+            //                std::cout << sf::Mouse::getPosition(window).x << " " << sf::Mouse::getPosition(window).y<<std::endl;
             if (event.type == sf::Event::Closed)
                 window.close();
-
-            guziki.pressEvent(window, event);
-
+            systemWindy.events(window, event);
+//            if (event.type == sf::Event::MouseMoved)
+//            {
+//                systemWindy.winda.setPosition(sf::Mouse::getPosition(window).y);
+//            }
             if (event.type == sf::Event::MouseButtonPressed)
             {
                 for(int i = 0; i < systemWindy.pietra.size(); i++)
                 {
-                    if (systemWindy.pietra[i]->button.getGlobalBounds().contains(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y))
-                    {
-                        int nr = rand() % 5;
-                        cout << nr << endl;
-                        systemWindy.pietra[i]->add(nr);
-                        nr = rand() % 5;
-                        cout << nr << endl;
-                        systemWindy.pietra[i]->add(nr);
-                        //systemWindy.moveWinda(i);
-                    }
+                    //                    if (systemWindy.pietra[i]->button.getGlobalBounds().contains(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y))
+                    //                    {
+                    //                        int nr = rand() % 5;
+                    //                        cout << nr << endl;
+                    //                        systemWindy.pietra[i]->add(nr);
+                    //                        nr = rand() % 5;
+                    //                        cout << nr << endl;
+                    //                        systemWindy.pietra[i]->add(nr);
+                    //                        //systemWindy.moveWinda(i);
+                    //                    }
                     //cout << systemWindy.pietra[i]->kolejka.size() << endl;
                 }
-               //cout << endl;
+                //cout << endl;
             }
         }
+        systemWindy.test();
         systemWindy.windaMovement();
         window.clear();
-       systemWindy.drawScreen(window);
-        guziki.draw(window);
+        systemWindy.drawScreen(window);
+        window.display();
+    }
+
+    return 0;
+}
+
+
+int main1()
+{
+    sf::RenderWindow window(sf::VideoMode(1200, 900), "Elevator");
+    sf::RectangleShape rect({50,50});
+    window.setFramerateLimit(60);
+    rect.setPosition(300,300);
+    sf::Clock timer;
+    int kierunek = 0;
+    while (window.isOpen())
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Key::Up)
+                kierunek = -1;
+            else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Key::Down)
+                kierunek = 1;
+            else
+                kierunek = 0;
+        }
+        if(timer.getElapsedTime().asMilliseconds() >= 1)
+        {
+            rect.move(0,kierunek);
+            timer.restart();
+        }
+        window.clear();
+        window.draw(rect);
         window.display();
     }
 
