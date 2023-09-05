@@ -7,10 +7,12 @@ _ZADANIE 3 Wizualizacja windy_
 
 Przy tworzeniu projektu stwierdziliśmy, żeby modułowo dzielić projekt na klasy - odpowiadające za inne elementy projektu (osoby, piętra, windę, działanie windy itd.). 
 Zaczęliśmy od właśnie takiego podziału i uzupełnienia wymaganych danych (np. o osobach - waga, piętro docelowe itd.). Dalej przeszliśmy do początkowej realizacji graficznej, którą opraliśmy
-na teksturach. Przyciski dodaliśmy normalnie wykorzystując kształty. Całą kwestię graficzną opraliśmy na bibliotece SFML. Środkowa i końcowa cześć projektu oprała się na dopracowywaniu logiki i porszuania windy
-oraz dodania ostatnich potrzebnych elementów. 
+na teksturach. Wraz z pracą nad projektem dodawaliśmy kolejne elemnty np. dodatkowe tło dla polepszenia walorów esteycznych. Przyciski dodaliśmy normalnie wykorzystując kształty. Całą kwestię graficzną opraliśmy na bibliotece SFML. 
+Środkowa i końcowa cześć projektu oprała się na dopracowywaniu logiki i porszuania windy oraz dodania ostatnich potrzebnych elementów takich jak np. przemieszczanie się osób. Końcowo dopracowaliśmy wszelkie problemy.
 
-## DZIAŁANIE WINDY
+## DZIAŁANIE WINDY - LOGIKA
+
+Winda sortuje oczekujących w zależności od kierunku... _TODO_
 
 ## COMMITY
 > OPISANE SĄ DOKŁADNIE PRZY ICH DODAWANIU
