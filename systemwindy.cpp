@@ -186,16 +186,16 @@ void SystemWindy::checkPietro()
 
 void SystemWindy::debugCheckVectors()
 {
-//    for(int i = 0; i < (int)winda.oczekujacy.size(); i++)
-//    {
-//        cout << winda.oczekujacy[i] << " ";
-//    }
-//    cout << endl;
-//    for(int i = 0; i < (int)winda.drugorzedneOczekujace.size(); i++)
-//    {
-//        cout << winda.drugorzedneOczekujace[i] << " ";
-//    }
-//    cout << endl << "///" << endl;
+    //    for(int i = 0; i < (int)winda.oczekujacy.size(); i++)
+    //    {
+    //        cout << winda.oczekujacy[i] << " ";
+    //    }
+    //    cout << endl;
+    //    for(int i = 0; i < (int)winda.drugorzedneOczekujace.size(); i++)
+    //    {
+    //        cout << winda.drugorzedneOczekujace[i] << " ";
+    //    }
+    //    cout << endl << "///" << endl;
 }
 
 void SystemWindy::timerLogic()
@@ -226,46 +226,25 @@ void SystemWindy::timerLogic()
 
 void SystemWindy::logikaWindy()
 {
-    debugCheckVectors();
+    //wychodzacy
     for(int i = 0; i < (int)winda.pasazerowie.size(); i++)
     {
         if (winda.pasazerowie.size() != 0)
         {
             if ((int)winda.nrPietra == winda.pasazerowie[i]->pietroDo) //sprawdzic czy pasazer w windzie jest na pietrze do ktorego chce isc
             {
-                //cout << "pasaz size" << winda.pasazerowie.size() << " oczekujacy size" << winda.oczekujacy.size() << endl;
                 winda.aktualnaWaga -= winda.pasazerowie[i]->waga; //odjac wage od windy
+                winda.pasazerowie[i]->setPosition(pietra[(int)winda.nrPietra]->body.getPosition().x + rand() % 50, pietra[(int)winda.nrPietra]->body.getPosition().y+60); //ustawic pozycje osoby wychodzacej na pietrze
                 pietra[(int)winda.nrPietra]->wychodzacy.emplace_back(winda.pasazerowie[i]); //dodac osobe do wychodzacych na pietrze
-                pietra[(int)winda.nrPietra]->wychodzacy[pietra[(int)winda.nrPietra]->wychodzacy.size()-1]->setPosition(pietra[(int)winda.nrPietra]->body.getPosition().x + rand() % 50, pietra[(int)winda.nrPietra]->body.getPosition().y+60); //ustawic pozycje osoby wychodzacej na pietrze
                 winda.pasazerowie.erase(winda.pasazerowie.begin()+i); //usunac osobe z windy
-                if (winda.pasazerowie.size() == 0) //sprawdza czy istnieja nadal pasazerowie w windzie aby rozpoczac czekanie 5 sekundowe i restart do pietra 0
-                    endClock.restart(); //restart zegara koncowego
                 i--;
             }
         }
     }
 
-    //            for(int i = 0; i < (int)winda.oczekujacy.size(); i++)
-    //            {
-    //                cout << winda.oczekujacy[i] << " ";
-    //            }
-    //            cout << endl;
-    //            for(int i = 0; i < (int)winda.drugorzedneOczekujace.size(); i++)
-    //            {
-    //                cout << winda.drugorzedneOczekujace[i] << " ";
-    //            }
-    //            cout << endl << "///" << endl;
-
-    //cout << 2 << endl;
-    //sprawdzic czy mozna wejsc
-    //sprawdzic czy ktos chce wejsc
-    //dodac te osoby do windy
-    //cout << (int)winda.nrPietra << endl;
-    //cout << "bobber" << endl;
-    //cout << 5 << endl;
+    //wchodzeniem do windy
     for(int i = 0; i < (int)pietra[(int)winda.nrPietra]->kolejka.size(); i++)
     {
-        //cout << "bob" << endl;
         if (winda.aktualnaWaga+pietra[(int)winda.nrPietra]->kolejka[i]->waga <= winda.maxWaga)
         {
             //dodawanie celu pasazera do oczekujacych lub drugo w zaleznosci od kierunku windy i czy po drodze
@@ -291,18 +270,14 @@ void SystemWindy::logikaWindy()
             winda.drugorzedneOczekujace.emplace_back(pietra[(int)winda.nrPietra]->kolejka[i]->pietroDo);
         }
     }
-    //cout << 6 << endl;
     pietra[(int)winda.nrPietra]->ustawieniaLudziPietro();
     winda.ustawieniaPasazerow();
-    //cout << 7 << endl;
     if (sortingType) sort(winda.oczekujacy.begin(), winda.oczekujacy.end(), sortGrowing);
     else if (!sortingType) sort(winda.oczekujacy.begin(), winda.oczekujacy.end(), sortShrinking);
     if (sortingType) sort(winda.drugorzedneOczekujace.begin(), winda.drugorzedneOczekujace.end(), sortShrinking);
     else if (!sortingType) sort(winda.drugorzedneOczekujace.begin(), winda.drugorzedneOczekujace.end(), sortGrowing);
-    //cout << 8 << endl;
-    //cout << 9 << endl;
-    //cout << enum_string[winda.kierunek] << " " << winda.nrPietra << " " << winda.cel << " " << stop << endl;
-    //usuwa z listy oczekujacej pietro na ktorym sie znajdujemy
+
+
     for(int i = 0; i < (int)winda.oczekujacy.size(); i++)
     {
         if (winda.oczekujacy[i] == winda.nrPietra)
@@ -317,7 +292,6 @@ void SystemWindy::logikaWindy()
         {
             winda.cel = 0;
         }
-        //cout << 1.1 << endl;
     }
     else if (winda.oczekujacy.size() == 0 && winda.drugorzedneOczekujace.size() != 0)
     {
