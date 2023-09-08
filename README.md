@@ -33,12 +33,13 @@ Windę, szyb windy, piętra, tła, reklamę oparliśmy o wykorzystanie tekstur -
  4. Sortowanie kolejki oczekujących/drugorzędnychOczekujących następuję rosnąco jeśli kierunek windy jest do góry i malejąco jeśli winda jedzie w dół.
  5. Gdy winda dojedzie do piętra docelowego, na którym osoba ma wysiąść - usuwana jest ona z wektora oczekujących, zmieniana jest waga oraz zostaje dodana do wektora wysiadających (kwestie graficzne).
  6. Winda jedzie po piętrach zgodnie z kolejką oczekujących, gdy wektor ten zostanie opróżniony następuje zastąpienie go wektorem drugorzędnychOczekujących i proces powtarza się.
-- ```POLECENIE 3```
+- (1. -> 6.) ```POLECENIE 3 i 3.1```
 7. Gdy winda osiągnie cel - winda dojedzie do piętra docelowego - usatawiany jest timer na 1s, który powoduje zatrzymanie się windy na piętrach. ```POLECENIE 3```
 8. Gdy zabranie osób w oczekujących i drugorzedneOczekujacych znaczy to, że winda może wrócić na pozycję początkową po 5s. ```POLECENIE 3.2```
+9. System sprawdza również na bierząco aktulaną wagę osób w windzie i jeśli jest ona maksymalna osoby dodwana są do wektora drugorzędnychOczekujących. ```POLECENIE 3.1```
  
 ## LOGIKA WINDY
-Użytkownik użwya przycisków do dodania osoby na danym piętrze, jednocześnie ustawiając piętro, do którego dana osoba ma jechać. W zależności od liczby osób w windzie wykonwaywane są kroki (1. 2. 3. 4.). Gdy winda dojedzie na piętro, do którgo dana osoba miała jechać następuję krok (5.) i w zależności od ilości osób krok (7. lub 8.). Zależnie ten logiczny proces powtarza się.
+Użytkownik użwya przycisków do dodania osoby na danym piętrze, jednocześnie ustawiając piętro, do którego dana osoba ma jechać. W zależności od liczby osób w windzie wykonwaywane są kroki (1. 2. 3. 4.). Gdy winda dojedzie na piętro, do którgo dana osoba miała jechać następuję krok (5.) i w zależności od ilości osób krok (7. lub 8.). Cały czas też kontorlowana jest waga jak w punkcie (9.). Zależnie ten logiczny proces powtarza się.
  
 ## COMMITY
 > OPISANE SĄ DOKŁADNIE PRZY ICH DODAWANIU
