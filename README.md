@@ -24,7 +24,13 @@ Celem naszego projektu jest stworzenie wirtualnej wizualizacji i działania wind
 Grafika składa się z okienka SFML RenderWindow, na którym znajdują się wszyskie elementy - winda, piętra, osoby, tło, przyciski itd. 
 Windę, szyb windy, piętra, tła, reklamę oparliśmy o wykorzystanie tekstur - grfaiki wektorowej dla walorów estetycznych, natomiast przyciski i wyświetlające się liczby są stworzone przy wykorzystaniu kształtów i tekstu z biblioteki SFML. ```POLECENIE 3```. Dla dodatkowego smaku pokusiliśmy się o stworzenie reklamy, która ma informować o aktualnej wadzę osób w windzie. ```POLECENIE 3.3```. Wszystkie wykorzystane grafiki są na publicznej licencji. 
 
-## ZASADY, ZAŁOŻENIA I LOGIKA WINDY 
+## ZASADY, ZAŁOŻENIA I LOGIKA WINDY
+ ### Założenia
+- Dodawania ludzi na pietra jest kontrolowane guzikami z liczbami po bokach pieter, które uzytkownik moze wcisnąć.
+- Przy kliknieciu przycisku dodawana jest osoba do kolejki i ```dzieje się mechanizm opisany poniżej w logice i zasadach```.
+- Liczba wyswietlona na czlowieku jest pietrem, na które wybiera sie czlowiek.
+- Ludzie czekaja w kolejce na pietrach aż winda przyjedzie, a potem czekaja na wyjscie, aż beda na pietrze na którym chcą wyjść.
+  
 ### Logika i zasady
  1. Gdy osoby wchodzą do windy ich pietroDo (piętro docelowe dla osoby) zostaje dodane do jednego z wektorów -> w zależnoci czy piętro docelowe tej osoby jest po drodze. Ustawiamy również wagę. 
  2. Gdy dodajemy osobę, której piętro docelowe jest są po drodze dodawana jest normalnie do kolejki/wektora oczekujących i wektor ten jest sortowany względem kierunku.
@@ -36,12 +42,6 @@ Windę, szyb windy, piętra, tła, reklamę oparliśmy o wykorzystanie tekstur -
 7. Gdy winda osiągnie cel - winda dojedzie do piętra docelowego - usatawiany jest timer na 1s, który powoduje zatrzymanie się windy na piętrach. ```POLECENIE 3```
 8. Gdy zabranie osób w oczekujących i drugorzedneOczekujacych znaczy to, że winda może wrócić na pozycję początkową po 5s. ```POLECENIE 3.2```
 9. System sprawdza również na bierząco aktulaną wagę osób w windzie i jeśli jest ona maksymalna osoby dodwana są do wektora drugorzędnychOczekujących. ```POLECENIE 3.1```
-
- ### Założenia
-- Dodawania ludzi na pietra jest kontrolowane guzikami z liczbami po bokach pieter, które uzytkownik moze wcisnąć.
-- Przy kliknieciu przycisku dodawana jest osoba do kolejki i dzieje się mechanizm opisany wyżej.
-- Liczba wyswietlona na czlowieku jest pietrem na ktore wybiera sie czlowiek.
-- Ludzie czekaja w kolejce na pietrach aż winda przyjedzie, a potem czekaja na wyjscie aż beda na pietrze na ktorym chcą wyjść.
 
 ### Opis zastosowania 
 Użytkownik użwya przycisków do dodania osoby na danym piętrze, jednocześnie ustawiając piętro, do którego dana osoba ma jechać. W zależności od liczby osób w windzie wykonwaywane są kroki (1. 2. 3. 4.). Gdy winda dojedzie na piętro, do którgo dana osoba miała jechać następuję krok (5.) i w zależności od ilości osób krok (7. lub 8.). Cały czas też kontorlowana jest waga jak w punkcie (9.). Zależnie ten logiczny proces powtarza się.
