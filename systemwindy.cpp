@@ -1,6 +1,6 @@
 #include "systemwindy.hpp"
 
-SystemWindy::SystemWindy()
+SystemWindy::SystemWindy() //ustawianie danych poczatkowych dla elementów wizualnych
 {
     backgroundTexture.loadFromFile("./background.png");
     backgroundSprite.setTexture(backgroundTexture);
@@ -38,7 +38,7 @@ SystemWindy::SystemWindy()
 
 
 
-    for (int i = 725; i >= 0; i -= 175)
+    for (int i = 725; i >= 0; i -= 175) //ustawianie danych dla pieter i przycisków - do użytku
     {
         Pietro *tmp = new Pietro;
         tmp->body.setPosition(187, i);
@@ -46,13 +46,13 @@ SystemWindy::SystemWindy()
         pietra.emplace_back(tmp);
     }
 
-    for(int i = 0; i < (int)pietra.size(); i++)
+    for(int i = 0; i < (int)pietra.size(); i++) //dezaktywacja przycisków
     {
         pietra[i]->buttons.buttons[i].setFillColor(sf::Color::Black);
     }
 }
 
-void SystemWindy::dodajDoKolejkiPieter(int pietro)
+void SystemWindy::dodajDoKolejkiPieter(int pietro) //w zależności od kierunku oraz pozycji pietra dodaje do ocz. lub durg.
 {
     //cout << 0.1 << endl;
     if (sortingType)
@@ -69,7 +69,6 @@ void SystemWindy::dodajDoKolejkiPieter(int pietro)
         }
         if (winda.oczekujacy.size() != 0) sort(winda.oczekujacy.begin(), winda.oczekujacy.end(), sortGrowing);
         if (winda.drugorzedneOczekujace.size() != 0) sort(winda.drugorzedneOczekujace.begin(), winda.drugorzedneOczekujace.end(), sortShrinking);
-
     }
     else if (!sortingType)
     {
@@ -87,33 +86,10 @@ void SystemWindy::dodajDoKolejkiPieter(int pietro)
         if (winda.drugorzedneOczekujace.size() != 0) sort(winda.drugorzedneOczekujace.begin(), winda.drugorzedneOczekujace.end(), sortGrowing);
     }
 
-    //        //ustawianie nastepnego celu windy
-    //        if (winda.oczekujacy.size() == 0 && winda.drugorzedneOczekujace.size() == 0)
-    //        {
-    //            if (endClock.getElapsedTime().asMilliseconds() > 5000)
-    //            {
-    //                winda.cel = 0;
-    //            }
-    //            //cout << 1.1 << endl;
-    //        }
-    //        else if (winda.oczekujacy.size() == 0 && winda.drugorzedneOczekujace.size() != 0)
-    //        {
-    //            for(int i = 0; i < (int)winda.drugorzedneOczekujace.size(); i++)
-    //            {
-    //                winda.oczekujacy.emplace_back(winda.drugorzedneOczekujace[i]);
-    //            }
-    //            winda.drugorzedneOczekujace.clear();
-    //            winda.cel = winda.oczekujacy[0];
-    //            sortingType = !sortingType;
-    //        }
-    //        else
-    //        {
-    //            winda.cel = winda.oczekujacy[0];
-    //        }
 
 }
 
-void SystemWindy::events(sf::RenderWindow &window, sf::Event &event)
+void SystemWindy::events(sf::RenderWindow &window, sf::Event &event) //kontrolowanie eventów (rzeczy, które dzieją się tylko raz przy wywołaniu)
 {
     for(int i = 0; i < (int)pietra.size(); i++)
     {
@@ -123,8 +99,8 @@ void SystemWindy::events(sf::RenderWindow &window, sf::Event &event)
             {
                 if (i != j)
                 {
-                    pietra[i]->add(j);
-                    dodajDoKolejkiPieter(i);
+                    pietra[i]->add(j); //dodanie osoby oczekujacej do pietra
+                    dodajDoKolejkiPieter(i); //dodawanie osoby do kolejki windy (u góry)
                 }
             }
         }
@@ -132,13 +108,8 @@ void SystemWindy::events(sf::RenderWindow &window, sf::Event &event)
 
 }
 
-void SystemWindy::moveWinda(bool czekac)
+void SystemWindy::moveWinda(bool czekac) //kontorla kierunku ruchu windy
 {
-    //cout << "czekac" << czekac << endl;
-    //winda.setPosition(pietra[pietro]->getPosition().y);
-    //winda.cel = pietro;
-    //cout << winda.cel << " " << winda.nrPietra << endl;
-
     if (!czekac)
     {
         //            if (winda.cel == winda.nrPietra)
@@ -158,7 +129,7 @@ void SystemWindy::moveWinda(bool czekac)
     else if (winda.kierunek != Idle) winda.setKierunek(Kierunek::Idle);
 }
 
-void SystemWindy::checkPietro()
+void SystemWindy::checkPietro() //ustalanie numeru piętra windy w czasie rzeczywistym
 {
     if (winda.body.getPosition().y > pietra[0]->body.getPosition().y)
     {
@@ -198,14 +169,11 @@ void SystemWindy::debugCheckVectors()
     //    cout << endl << "///" << endl;
 }
 
-void SystemWindy::timerLogic()
+void SystemWindy::timerLogic() //ustawia keidy logika windy ma zajść - ta logika dzieje się RAZ, na każdym piętrze
 {
-    checkPietro();
-    //debugCheckVectors();
-    //cout << winda.nrPietra << " " << winda.cel << endl;
+    checkPietro();  // aktualizaujemy aktualny nrPietra
     if (winda.nrPietra == winda.cel)  //dzieje sie jednorazowo
     {
-        stop = true;
         moveWinda(true);    //zatrzymuje winde - speed = 0
         logikaWindy();      // wchodzenie osob wychdozenie sotrowanie + WYBÓR NOWEGO CELU!!! (co spodowuje efekt jednorazowy - opisane wczensiej)
         stopTimer.restart();    // timer kontrolujacy zatrzymanie windy
@@ -218,7 +186,6 @@ void SystemWindy::timerLogic()
         else time = 1000;
         if (stopTimer.getElapsedTime().asMilliseconds() > time) // nie ruszy sie winda dopóki ten warunek nie zostanie spełniony
         {
-            stop = false;
             moveWinda(false); // rusza windę
         }
     }
@@ -278,13 +245,18 @@ void SystemWindy::logikaWindy()
     else if (!sortingType) sort(winda.drugorzedneOczekujace.begin(), winda.drugorzedneOczekujace.end(), sortGrowing);
 
 
+
+
     for(int i = 0; i < (int)winda.oczekujacy.size(); i++)
     {
         if (winda.oczekujacy[i] == winda.nrPietra)
         {
             winda.oczekujacy.erase(winda.oczekujacy.begin()+i);
+            i--;
         }
     }
+
+
     //ustawianie nastepnego celu windy
     if (winda.oczekujacy.size() == 0 && winda.drugorzedneOczekujace.size() == 0)
     {

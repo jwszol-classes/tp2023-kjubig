@@ -4,8 +4,8 @@
 class SystemWindy
 {
 public:
-    vector<Pietro*> pietra;
-    Winda winda;
+    vector<Pietro*> pietra; //zbiór pojednyncych pieter
+    Winda winda; // oczek. durgocze.
     sf::Texture backgroundTexture;
     sf::Sprite backgroundSprite;
     sf::Texture shaftTexture;
@@ -14,11 +14,9 @@ public:
     sf::Sprite boxSprite;
     sf::Texture floorbackgroundTexture;
     sf::Sprite floorbackgroundSprite;
-    vector<int> kolejkaPieter;
-    sf::Vector2f maxMinPietro = {0,4};
-    bool stop = false;
-    sf::Clock stopTimer;
-    sf::Clock endClock;
+    bool stop = false; //artefakt
+    sf::Clock stopTimer; //objekt konrolujący czas zatrzymania windy
+    sf::Clock endClock; //artefakt
     sf::Font font;
     sf::Text WyswietlanieWagi;
     bool sortingType = true;
